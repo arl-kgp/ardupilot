@@ -86,6 +86,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(rc_loop,              100,    130),
     SCHED_TASK(throttle_loop,         50,     75),
     SCHED_TASK(update_GPS,            50,    200),
+
 #if OPTFLOW == ENABLED
     SCHED_TASK(update_optical_flow,  200,    160),
 #endif
@@ -190,6 +191,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if STATS_ENABLED == ENABLED
     SCHED_TASK_CLASS(AP_Stats,             &copter.g2.stats,            update,           1, 100),
 #endif
+    SCHED_TASK_CLASS(ARK_Lidar, &copter.arklidar, update, 400, 75),
 };
 
 constexpr int8_t Copter::_failsafe_priorities[7];
