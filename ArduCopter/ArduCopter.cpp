@@ -191,7 +191,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if STATS_ENABLED == ENABLED
     SCHED_TASK_CLASS(AP_Stats,             &copter.g2.stats,            update,           1, 100),
 #endif
-    SCHED_TASK_CLASS(ARK_Lidar, &copter.arklidar, update, 400, 75),
+    //SCHED_TASK_CLASS(ARK_Lidar, &copter.arklidar, update, 800, 1000),
 };
 
 constexpr int8_t Copter::_failsafe_priorities[7];
@@ -453,6 +453,7 @@ void Copter::one_hz_loop()
     // indicates that the sensor or subsystem is present but not
     // functioning correctly
     update_sensor_status_flags();
+    copter.arklidar.update();
 }
 
 // called at 50hz
