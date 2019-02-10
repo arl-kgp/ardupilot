@@ -21,6 +21,7 @@
 #include "AP_Proximity_RangeFinder.h"
 #include "AP_Proximity_MAV.h"
 #include "AP_Proximity_SITL.h"
+#include "AP_Proximity_ARKServoLiDAR.h"
 
 extern const AP_HAL::HAL &hal;
 
@@ -31,7 +32,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Param: _TYPE
     // @DisplayName: Proximity type
     // @Description: What type of proximity sensor is connected
-    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder,5:RPLidarA2,6:TeraRangerTowerEvo
+    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder,5:RPLidarA2,6:TeraRangerTowerEvo,7:ARKServoLiDAR
     // @RebootRequired: True
     // @User: Standard
     AP_GROUPINFO("_TYPE",   1, AP_Proximity, _type[0], 0),
@@ -316,6 +317,11 @@ void AP_Proximity::detect_instance(uint8_t instance)
     if (type == Proximity_Type_RangeFinder) {
         state[instance].instance = instance;
         drivers[instance] = new AP_Proximity_RangeFinder(*this, state[instance]);
+        return;
+    }
+    if (type == Proximity_Type_ARKServoLiDAR) {
+        state[instance].instance = instance;
+        drivers[instance] = new AP_Proximity_ARKServoLiDAR(*this, state[instance]);
         return;
     }
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL

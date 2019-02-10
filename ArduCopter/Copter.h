@@ -83,7 +83,6 @@
 #include <AP_Arming/AP_Arming.h>
 #include <AP_SmartRTL/AP_SmartRTL.h>
 #include <AP_TempCalibration/AP_TempCalibration.h>
-#include <ARK_Lidar/ARK_Lidar.h>
 
 // Configuration
 #include "defines.h"
@@ -238,7 +237,6 @@ private:
     AP_Baro barometer;
     Compass compass;
     AP_InertialSensor ins;
-    ARK_Lidar arklidar;
 
     RangeFinder rangefinder{serial_manager, ROTATION_PITCH_270};
     struct {
