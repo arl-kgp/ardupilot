@@ -28,8 +28,8 @@ AP_Proximity_ARKServoLiDAR::AP_Proximity_ARKServoLiDAR(AP_Proximity &_frontend,
     _sign = 1.0;
     _angle_range = frontend.get_max_sweep_angle(state.instance); // TODO: Read from Params-DONE
     _angle_increment = frontend.get_angle_increment(state.instance); // TODO: Read from Params-DONE
-    _keep_sector_min = frontend.get_keep_sector_min(state.instance); // TODO: Read from Params
-    _read_rate = (uint8_t)40; //TODO: Read from Params
+    _keep_sector_min = frontend.get_keep_sector_min(state.instance); // TODO: Read from Params-DONE
+    _read_rate = (uint8_t)frontend.get_read_rate(state.instance); //TODO: Read from Params-DONE
     _time_delay = ((uint32_t)1000)/((uint32_t)_read_rate);
     _servo_angle = -_angle_range;
     _prev_sector = 10;

@@ -196,6 +196,14 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_SEC_MIN", 21, AP_Proximity, _keep_sector_min[0], PROXIMITY_KEEP_SECTOR_MIN),
 
+    // @Param: _READ_RATE
+    // @DisplayName: Rate of reading data from sensor
+    // @Description: Used to find the time delay between consecutive datas
+    // @Units: Hz
+    // @Range: 20 80
+    // @User: Standard
+    AP_GROUPINFO("_READ_RATE", 22, AP_Proximity, _read_rate[0], PROXIMITY_READ_RATE),
+
     AP_GROUPEND
 };
 
@@ -328,6 +336,16 @@ uint8_t AP_Proximity::get_keep_sector_min(uint8_t instance) const
     }
 
     return _keep_sector_min[instance].get();
+}
+
+// returns read_rate
+uint8_t AP_Proximity::get_read_rate(uint8_t instance) const
+{
+    if (instance >= PROXIMITY_MAX_INSTANCES) {
+        return 0;
+    }
+
+    return _read_rate[instance].get();
 }
 
 //  detect if an instance of a proximity sensor is connected.
