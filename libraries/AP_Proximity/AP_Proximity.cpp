@@ -152,7 +152,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Param: 2_TYPE
     // @DisplayName: Second Proximity type
     // @Description: What type of proximity sensor is connected
-    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder,5:RPLidarA2,6:TeraRangerTowerEvo
+    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder,5:RPLidarA2,6:TeraRangerTowerEvo,7:ARKServoLiDAR
     // @User: Advanced
     // @RebootRequired: True
     AP_GROUPINFO("2_TYPE", 16, AP_Proximity, _type[1], 0),
@@ -172,6 +172,14 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("2_YAW_CORR", 18, AP_Proximity, _yaw_correction[1], PROXIMITY_YAW_CORRECTION_DEFAULT),
 #endif
+
+    // @Param: _SWP_MAX
+    // @DisplayName: Max Angle Sweep
+    // @Description: Maximum anglt sensor sweeps(-180,180)
+    // @Units: deg
+    // @Range: 0 180
+    // @User: Standard
+    AP_GROUPINFO("_SWP_MAX", 19, AP_Proximity, _max_sweep_angle[0], 45),
 
     AP_GROUPEND
 };
@@ -275,6 +283,16 @@ void AP_Proximity::handle_msg(mavlink_message_t *msg)
             drivers[i]->handle_msg(msg);
         }
     }
+}
+
+//return max sweep angle
+float AP_Proximity::get_max_sweep_angle(uint8_t instance) const
+{
+    if (instance >= PROXIMITY_MAX_INSTANCES) {
+        return 0;
+    }
+
+    return _max_sweep_angle[instance].get();
 }
 
 //  detect if an instance of a proximity sensor is connected.

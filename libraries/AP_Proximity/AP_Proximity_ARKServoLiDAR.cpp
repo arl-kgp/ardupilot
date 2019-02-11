@@ -26,7 +26,7 @@ AP_Proximity_ARKServoLiDAR::AP_Proximity_ARKServoLiDAR(AP_Proximity &_frontend,
     AP_Proximity_Backend(_frontend, _state)
 {
     _sign = 1.0;
-    _angle_range = 45; // TODO: Read from Params
+    _angle_range = frontend.get_max_sweep_angle(state.instance); // TODO: Read from Params
     _angle_increment = 5; // TODO: Read from Params
     _keep_sector_min = true; // TODO: Read from Params
     _read_rate = (uint8_t)40; //TODO: Read from Params
