@@ -189,6 +189,13 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_ANG_INC", 20, AP_Proximity, _angle_increment[0], PROXIMITY_ANGLE_INCREMENT),
 
+    // @Param: _SEC_MIN
+    // @DisplayName: Use Minimum of each sector
+    // @Description: Stores the minimum distance of each sector for avoidance
+    // @Values: 0:True 1:False
+    // @User: Standard
+    AP_GROUPINFO("_SEC_MIN", 21, AP_Proximity, _keep_sector_min[0], PROXIMITY_KEEP_SECTOR_MIN),
+
     AP_GROUPEND
 };
 
@@ -311,6 +318,16 @@ float AP_Proximity::get_angle_increment(uint8_t instance) const
     }
 
     return _angle_increment[instance].get();
+}
+
+// returns whether to keep minimum distance or not
+uint8_t AP_Proximity::get_keep_sector_min(uint8_t instance) const
+{
+    if (instance >= PROXIMITY_MAX_INSTANCES) {
+        return 0;
+    }
+
+    return _keep_sector_min[instance].get();
 }
 
 //  detect if an instance of a proximity sensor is connected.

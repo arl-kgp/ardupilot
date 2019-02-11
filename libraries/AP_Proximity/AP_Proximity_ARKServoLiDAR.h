@@ -38,7 +38,7 @@ private:
     float _sign;
     float _servo_angle, _angle_range;
     bool _found_lidar;
-    bool _keep_sector_min;
+    uint8_t _keep_sector_min;
     float _angle_increment;
     uint8_t _prev_sector;
     uint8_t _read_rate;
