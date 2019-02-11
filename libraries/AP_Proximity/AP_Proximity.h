@@ -27,6 +27,7 @@
 #define PROXIMITY_MAX_DIRECTION 8
 #define PROXIMITY_SENSOR_ID_START 10
 #define PROXIMITY_MAX_ANGLE_SWEEP 45
+#define PROXIMITY_ANGLE_INCREMENT 5
 
 class AP_Proximity_Backend;
 
@@ -79,6 +80,7 @@ public:
     uint8_t get_orientation(uint8_t instance) const;
     int16_t get_yaw_correction(uint8_t instance) const;
     float get_max_sweep_angle(uint8_t instance) const;
+    float get_angle_increment(uint8_t instance) const;
 
     // return sensor health
     Proximity_Status get_status(uint8_t instance) const;
@@ -160,6 +162,7 @@ private:
     AP_Int16 _ignore_angle_deg[PROXIMITY_MAX_IGNORE];   // angle (in degrees) of area that should be ignored by sensor (i.e. leg shows up)
     AP_Int8 _ignore_width_deg[PROXIMITY_MAX_IGNORE];    // width of beam (in degrees) that should be ignored
     AP_Float _max_sweep_angle[PROXIMITY_MAX_INSTANCES];
+    AP_Float _angle_increment[PROXIMITY_MAX_INSTANCES];
 
 
     void detect_instance(uint8_t instance);

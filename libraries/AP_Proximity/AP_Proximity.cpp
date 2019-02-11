@@ -175,11 +175,19 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
 
     // @Param: _SWP_MAX
     // @DisplayName: Max Angle Sweep
-    // @Description: Maximum anglt sensor sweeps(-180,180)
+    // @Description: Maximum angle sensor sweeps(-180,180)
     // @Units: deg
     // @Range: 0 180
     // @User: Standard
-    AP_GROUPINFO("_SWP_MAX", 19, AP_Proximity, _max_sweep_angle[0], 45),
+    AP_GROUPINFO("_SWP_MAX", 19, AP_Proximity, _max_sweep_angle[0], PROXIMITY_MAX_ANGLE_SWEEP),
+
+    // @Param: _ANG_INC
+    // @DisplayName: Rate of Angle Increment
+    // @Description: Rate of increase of angle of servo
+    // @Units: deg
+    // @Range: 0 30
+    // @User: Standard
+    AP_GROUPINFO("_ANG_INC", 20, AP_Proximity, _angle_increment[0], PROXIMITY_ANGLE_INCREMENT),
 
     AP_GROUPEND
 };
@@ -293,6 +301,16 @@ float AP_Proximity::get_max_sweep_angle(uint8_t instance) const
     }
 
     return _max_sweep_angle[instance].get();
+}
+
+//return rate of angle increment
+float AP_Proximity::get_angle_increment(uint8_t instance) const
+{
+    if (instance >= PROXIMITY_MAX_INSTANCES) {
+        return 0;
+    }
+
+    return _angle_increment[instance].get();
 }
 
 //  detect if an instance of a proximity sensor is connected.
