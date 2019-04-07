@@ -37,65 +37,82 @@ AP_Proximity_ARKServoLiDAR::AP_Proximity_ARKServoLiDAR(AP_Proximity &_frontend,
     _min_sector_dist = distance_max();
     SRV_Channels::move_servo(SRV_Channel::k_ark_servo_lidar, _servo_angle, -_angle_range, _angle_range);
 
-    _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(1, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
-    if (!_found_lidar) {
-        _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(0, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
-    }
+    // _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(1, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
+    // if (!_found_lidar) {
+    //     _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(0, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
+    // }
 }
 
 // update the state of the sensor
 void AP_Proximity_ARKServoLiDAR::update(void)
 {
     if (AP_HAL::millis()-_last_called < _time_delay) return;
-    if (!_found_lidar) return; // In case the LiDAR is not available
-    if (_driver == nullptr || _lidar_state.type == RangeFinder::RangeFinder_TYPE_NONE) {
-        _lidar_state.status = RangeFinder::RangeFinder_NotConnected;
-        _lidar_state.range_valid_count = 0;
-            return;
+    //if (!_found_lidar) return; // In case the LiDAR is not available
+
+    const RangeFinder *rngfnd = frontend.get_rangefinder();
+    if (rngfnd == nullptr) {
+        set_status(AP_Proximity::Proximity_NoData);
+        return;
     }
 
-    //Read LiDAR
-    float distance_m = read_lidar();
-    if (distance_m < distance_min()) return;
+    // if (_driver == nullptr || _lidar_state.type == RangeFinder::RangeFinder_TYPE_NONE) {
+    //     _lidar_state.status = RangeFinder::RangeFinder_NotConnected;
+    //     _lidar_state.range_valid_count = 0;
+    //         return;
+    // }
 
-    //Move Servo
-    _servo_angle += _sign*_angle_increment;
-    if(_servo_angle > _angle_range) {
-        _servo_angle = _angle_range-_angle_increment;
-        _sign = -1.0;
-    }
-    else if(_servo_angle < -_angle_range) {
-        _servo_angle = -(_angle_range-_angle_increment);
-        _sign = 1.0;
-    }
-    //gcs().send_text(MAV_SEVERITY_INFO, "Test Print Angle %f", _servo_angle);
-    SRV_Channels::move_servo(SRV_Channel::k_ark_servo_lidar, _servo_angle, -_angle_range, _angle_range);
-    
-    // Update Data
-    float angle_non_negative = _servo_angle;
-    if (_servo_angle<0){
-        angle_non_negative = 360.0+_servo_angle;
-    }
-    uint8_t sector;
-    if (convert_angle_to_sector(angle_non_negative, sector)) {
-        float distance_for_update = distance_m;
-        if(_keep_sector_min){
-            if(sector == _prev_sector)
-            {
-                if (distance_m < _min_sector_dist) _min_sector_dist = distance_m;
-            }
-            else _min_sector_dist = distance_m;
-            distance_for_update = _min_sector_dist;
+
+    ///// look through all rangefinders///////
+    for (uint8_t i=0; i < rngfnd->num_sensors(); i++) {
+        AP_RangeFinder_Backend *sensor = rngfnd->get_backend(i);
+        if (sensor == nullptr) {
+            continue;
         }
-        
-        _angle[sector] = angle_non_negative;
-        _distance[sector] = distance_for_update;
-        _distance_valid[sector] = is_positive(distance_for_update);
-        _last_called = AP_HAL::millis();
-        // update boundary used for avoidance
-        update_boundary_for_sector(sector);
-        _prev_sector = sector;
-        
+        if (sensor->has_data()) {
+
+            //Read LiDAR
+            float distance_m = sensor->distance_cm() / 100.0f; //read_lidar();
+            if (distance_m < distance_min()) return;
+
+            //Move Servo
+            _servo_angle += _sign*_angle_increment;
+            if(_servo_angle > _angle_range) {
+                _servo_angle = _angle_range-_angle_increment;
+                _sign = -1.0;
+            }
+            else if(_servo_angle < -_angle_range) {
+                _servo_angle = -(_angle_range-_angle_increment);
+                _sign = 1.0;
+            }
+            //gcs().send_text(MAV_SEVERITY_INFO, "Test Print Angle %f", _servo_angle);
+            SRV_Channels::move_servo(SRV_Channel::k_ark_servo_lidar, _servo_angle, -_angle_range, _angle_range);
+            
+            // Update Data
+            float angle_non_negative = _servo_angle;
+            if (_servo_angle<0){
+                angle_non_negative = 360.0+_servo_angle;
+            }
+            uint8_t sector;
+            if (convert_angle_to_sector(angle_non_negative, sector)) {
+                float distance_for_update = distance_m;
+                if(_keep_sector_min){
+                    if(sector == _prev_sector)
+                    {
+                        if (distance_m < _min_sector_dist) _min_sector_dist = distance_m;
+                    }
+                    else _min_sector_dist = distance_m;
+                    distance_for_update = _min_sector_dist;
+                }
+                
+                _angle[sector] = angle_non_negative;
+                _distance[sector] = distance_for_update;
+                _distance_valid[sector] = is_positive(distance_for_update);
+                _last_called = AP_HAL::millis();
+                // update boundary used for avoidance
+                update_boundary_for_sector(sector);
+                _prev_sector = sector;
+            }
+        }
     }
     set_status(AP_Proximity::Proximity_Good);
 }
