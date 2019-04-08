@@ -37,30 +37,18 @@ AP_Proximity_ARKServoLiDAR::AP_Proximity_ARKServoLiDAR(AP_Proximity &_frontend,
     _min_sector_dist = distance_max();
     SRV_Channels::move_servo(SRV_Channel::k_ark_servo_lidar, _servo_angle, -_angle_range, _angle_range);
 
-    // _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(1, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
-    // if (!_found_lidar) {
-    //     _found_lidar = _add_backend(AP_RangeFinder_PulsedLightLRF::detect(0, _lidar_state, RangeFinder::RangeFinder_TYPE_PLI2C));
-    // }
 }
 
 // update the state of the sensor
 void AP_Proximity_ARKServoLiDAR::update(void)
 {
     if (AP_HAL::millis()-_last_called < _time_delay) return;
-    //if (!_found_lidar) return; // In case the LiDAR is not available
 
     const RangeFinder *rngfnd = frontend.get_rangefinder();
     if (rngfnd == nullptr) {
         set_status(AP_Proximity::Proximity_NoData);
         return;
     }
-
-    // if (_driver == nullptr || _lidar_state.type == RangeFinder::RangeFinder_TYPE_NONE) {
-    //     _lidar_state.status = RangeFinder::RangeFinder_NotConnected;
-    //     _lidar_state.range_valid_count = 0;
-    //         return;
-    // }
-
 
     ///// look through all rangefinders///////
     for (uint8_t i=0; i < rngfnd->num_sensors(); i++) {
@@ -71,7 +59,7 @@ void AP_Proximity_ARKServoLiDAR::update(void)
         if (sensor->has_data()) {
 
             //Read LiDAR
-            float distance_m = sensor->distance_cm() / 100.0f; //read_lidar();
+            float distance_m = sensor->distance_cm() / 100.0f; //read_lidar
             if (distance_m < distance_min()) return;
 
             //Move Servo
@@ -134,12 +122,3 @@ float AP_Proximity_ARKServoLiDAR::read_lidar()
     return distance;
 }
 
-
-bool AP_Proximity_ARKServoLiDAR::_add_backend(AP_RangeFinder_Backend *backend)
-{
-    if (!backend) {
-        return false;
-    }
-    _driver = backend;
-    return true;
-}
